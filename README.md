@@ -89,3 +89,15 @@ vercel env pull .env.local
 Vercel のサーバーレス環境（Vercel Functions）では、関数インスタンスがリクエストごとに起動・破棄される可能性があります。そのため **インメモリでのデータ保持は信頼できません**。
 
 Web Push の購読情報は Upstash Redis（サーバーレス対応の Redis）に保存することで、異なる関数インスタンス間でもデータを共有できるようにしています。
+
+## 動作状況
+
+| 通知方式 | ローカル | Vercel |
+|----------|----------|--------|
+| Sonner（トースト） | OK | OK |
+| Web Notification API | OK | OK |
+| Web Push | OK | 未解決 |
+
+### Web Push の既知の問題
+
+Vercel 環境で Web Push のサーバー送信は成功（`sent: 1`）するが、ブラウザに通知が届かない現象を確認中。DevTools の Service Worker から直接 Push した場合は通知が表示されるため、Service Worker 自体は正常に動作している。サーバーからプッシュサービス（FCM）経由でブラウザに届くまでの経路に問題がある可能性がある。
