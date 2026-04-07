@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { webpush, subscriptions } from "@/lib/web-push";
+import { getWebPush, subscriptions } from "@/lib/web-push";
 
 export async function POST(request: NextRequest) {
   const { title, body } = (await request.json()) as {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
   for (const [endpoint, subscription] of subscriptions) {
     try {
-      await webpush.sendNotification(subscription, payload);
+      await getWebPush().sendNotification(subscription, payload);
       sent++;
     } catch (error: unknown) {
       const statusCode =
