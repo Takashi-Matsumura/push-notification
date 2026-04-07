@@ -20,7 +20,19 @@ self.addEventListener("push", (event) => {
     body: data.body || "",
     icon: data.icon || "/next.svg",
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    Notification.permission === "granted"
+      ? self.registration.showNotification(title, options)
+      : self.clients.matchAll({ type: "window" }).then((clients) => {
+          clients.forEach((client) =>
+            client.postMessage({
+              type: "PUSH_RECEIVED_NO_PERMISSION",
+              title,
+              body: options.body,
+            })
+          );
+        })
+  );
 });
 
 self.addEventListener("notificationclick", (event) => {
