@@ -22,6 +22,7 @@ export function WebPushDemo() {
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const [message, setMessage] = useState("");
+  const [lastResult, setLastResult] = useState<string | null>(null);
 
   useEffect(() => {
     if ("serviceWorker" in navigator && "PushManager" in window) {
@@ -82,7 +83,7 @@ export function WebPushDemo() {
   const sendTestNotification = async () => {
     setIsLoading(true);
     try {
-      await fetch("/api/push/send", {
+      const res = await fetch("/api/push/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -90,8 +91,11 @@ export function WebPushDemo() {
           body: message || "バックグラウンドで受信できるプッシュ通知です。",
         }),
       });
+      const result = await res.json();
+      setLastResult(JSON.stringify(result, null, 2));
     } catch (error) {
       console.error("送信に失敗しました:", error);
+      setLastResult(`エラー: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -164,6 +168,12 @@ export function WebPushDemo() {
         )}
       </div>
 
+      {lastResult && (
+        <pre className="mt-3 rounded-md bg-zinc-100 dark:bg-zinc-900 px-3 py-2 text-xs text-foreground overflow-x-auto">
+          {lastResult}
+        </pre>
+      )}
+
       <div className="mt-3 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground space-y-1">
         <p>
           <strong>Web Notification API との違い:</strong>{" "}
@@ -172,8 +182,8 @@ export function WebPushDemo() {
         </p>
         <p>
           <strong>注意:</strong>{" "}
-          このデモではサーバーのメモリに購読情報を保存しているため、サーバー再起動時に購読情報が消えます。
-          その場合は一度「購読を解除」してから再度「購読」してください。
+          購読情報は Upstash Redis に保存されます。
+          購読がうまくいかない場合は一度「購読を解除」してから再度「購読」してください。
         </p>
       </div>
     </section>

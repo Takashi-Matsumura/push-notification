@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   const subscriptions = await getAllSubscriptions();
 
   let sent = 0;
-  const errors: string[] = [];
+  const errorDetails: string[] = [];
 
   for (const [endpoint, subscription] of subscriptions) {
     try {
@@ -23,13 +23,21 @@ export async function POST(request: NextRequest) {
         error instanceof Error && "statusCode" in error
           ? (error as { statusCode: number }).statusCode
           : undefined;
+      const message =
+        error instanceof Error ? error.message : String(error);
       if (statusCode === 410 || statusCode === 404) {
         await removeSubscription(endpoint);
+        errorDetails.push(`expired(${statusCode})`);
       } else {
-        errors.push(endpoint);
+        errorDetails.push(`${statusCode ?? "unknown"}: ${message}`);
       }
     }
   }
 
-  return NextResponse.json({ success: true, sent, errors: errors.length });
+  return NextResponse.json({
+    success: true,
+    sent,
+    totalSubscriptions: subscriptions.size,
+    errors: errorDetails,
+  });
 }
