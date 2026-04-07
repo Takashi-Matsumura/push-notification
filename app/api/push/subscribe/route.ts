@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { subscriptions, type WebPushSubscription } from "@/lib/web-push";
+import type { WebPushSubscription } from "@/lib/web-push";
+import { addSubscription, removeSubscription } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   const { subscription } = (await request.json()) as {
     subscription: WebPushSubscription;
   };
 
-  subscriptions.set(subscription.endpoint, subscription);
+  await addSubscription(subscription);
 
   return NextResponse.json({ success: true }, { status: 201 });
 }
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const { endpoint } = (await request.json()) as { endpoint: string };
 
-  subscriptions.delete(endpoint);
+  await removeSubscription(endpoint);
 
   return NextResponse.json({ success: true });
 }

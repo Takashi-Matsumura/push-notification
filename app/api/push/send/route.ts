@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getWebPush, subscriptions } from "@/lib/web-push";
+import { getWebPush } from "@/lib/web-push";
+import { getAllSubscriptions, removeSubscription } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   const { title, body } = (await request.json()) as {
@@ -8,6 +9,7 @@ export async function POST(request: NextRequest) {
   };
 
   const payload = JSON.stringify({ title, body, icon: "/next.svg" });
+  const subscriptions = await getAllSubscriptions();
 
   let sent = 0;
   const errors: string[] = [];
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
           ? (error as { statusCode: number }).statusCode
           : undefined;
       if (statusCode === 410 || statusCode === 404) {
-        subscriptions.delete(endpoint);
+        await removeSubscription(endpoint);
       } else {
         errors.push(endpoint);
       }

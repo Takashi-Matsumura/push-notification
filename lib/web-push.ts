@@ -25,5 +25,3 @@ export function getWebPush() {
   ensureInitialized();
   return webpush;
 }
-
-export const subscriptions = new Map<string, WebPushSubscription>();
