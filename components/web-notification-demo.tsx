@@ -125,7 +125,7 @@ export function WebNotificationDemo() {
                   body: `この通知は前の通知を置き換えます。クリック回数: ${count}`,
                   tag: "update",
                   renotify: true,
-                });
+                } as NotificationOptions);
               }}
             >
               タグ付き（置換）

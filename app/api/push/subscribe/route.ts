@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { subscriptions } from "@/lib/web-push";
-import type webpush from "web-push";
+import { subscriptions, type WebPushSubscription } from "@/lib/web-push";
 
 export async function POST(request: NextRequest) {
   const { subscription } = (await request.json()) as {
-    subscription: webpush.PushSubscription;
+    subscription: WebPushSubscription;
   };
 
   subscriptions.set(subscription.endpoint, subscription);
