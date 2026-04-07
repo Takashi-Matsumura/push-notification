@@ -7,7 +7,14 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  const data = event.data ? event.data.json() : {};
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch {
+      data = { title: "プッシュ通知", body: event.data.text() };
+    }
+  }
   const title = data.title || "プッシュ通知";
   const options = {
     body: data.body || "",
