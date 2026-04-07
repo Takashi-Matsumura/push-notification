@@ -16,7 +16,11 @@ function ensureInitialized() {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   if (publicKey && privateKey) {
-    webpush.setVapidDetails("mailto:demo@example.com", publicKey, privateKey);
+    webpush.setVapidDetails(
+      "mailto:demo@example.com",
+      publicKey.trim().replace(/=+$/, ""),
+      privateKey.trim().replace(/=+$/, ""),
+    );
     initialized = true;
   }
 }
